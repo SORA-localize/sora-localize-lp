@@ -547,6 +547,7 @@ function FormSection({ t, lang }) {
     notes: '',
   });
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
+  const [errorMsg, setErrorMsg] = useState('');
 
   const toggleMulti = (key, value) => {
     setState((s) => {
@@ -560,26 +561,67 @@ function FormSection({ t, lang }) {
   const onSubmit = async (e) => {
     e.preventDefault();
     setStatus('submitting');
-    try {
-      const formData = new FormData(e.target);
-      formData.append('access_key', WEB3FORMS_KEY);
-      formData.append('subject', `New sample request from ${state.company || 'unknown'}`);
-      formData.append('from_name', 'SORA Localize LP');
-      formData.append('sections', state.sections.map((i) => f.fields.sections.options[i].en).join(', '));
-      formData.append('formats', state.formats.map((i) => f.fields.formats.options[i].en).join(', '));
+    setErrorMsg('');
 
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        body: formData,
-      });
+    const sectionsText = state.sections.map((i) => f.fields.sections.options[i].en).join(', ');
+    const formatsText = state.formats.map((i) => f.fields.formats.options[i].en).join(', ');
+    const fileInput = e.target.querySelector('input[type="file"]');
+    const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+    try {
+      let res;
+      if (hasFile) {
+        const formData = new FormData();
+        formData.append('access_key', WEB3FORMS_KEY);
+        formData.append('subject', `New sample request from ${state.company || 'unknown'}`);
+        formData.append('from_name', 'SORA Localize LP');
+        formData.append('company', state.company);
+        formData.append('email', state.email);
+        formData.append('sections', sectionsText);
+        formData.append('formats', formatsText);
+        formData.append('materials', state.materials);
+        formData.append('tone', state.tone);
+        formData.append('notes', state.notes);
+        formData.append('attachment', fileInput.files[0]);
+
+        res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData,
+        });
+      } else {
+        res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            access_key: WEB3FORMS_KEY,
+            subject: `New sample request from ${state.company || 'unknown'}`,
+            from_name: 'SORA Localize LP',
+            company: state.company,
+            email: state.email,
+            sections: sectionsText,
+            formats: formatsText,
+            materials: state.materials,
+            tone: state.tone,
+            notes: state.notes,
+          }),
+        });
+      }
+
       const data = await res.json();
+      console.log('Web3Forms response:', data);
       if (data.success) {
         setStatus('success');
       } else {
         setStatus('error');
+        setErrorMsg(data.message || `HTTP ${res.status}`);
       }
-    } catch {
+    } catch (err) {
+      console.error('Submit error:', err);
       setStatus('error');
+      setErrorMsg(err.message || 'Network error');
     }
   };
 
@@ -730,7 +772,8 @@ function FormSection({ t, lang }) {
 
           {status === 'error' && (
             <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-              {t(f.error)}
+              <div>{t(f.error)}</div>
+              {errorMsg && <div className="mt-1 text-xs text-red-600 font-mono">{errorMsg}</div>}
             </div>
           )}
 
