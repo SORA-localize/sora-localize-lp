@@ -543,6 +543,7 @@ function FormSection({ t, lang }) {
     sections: [],
     formats: [],
     materials: '',
+    fileLink: '',
     tone: '',
     notes: '',
   });
@@ -565,50 +566,28 @@ function FormSection({ t, lang }) {
 
     const sectionsText = state.sections.map((i) => f.fields.sections.options[i].en).join(', ');
     const formatsText = state.formats.map((i) => f.fields.formats.options[i].en).join(', ');
-    const fileInput = e.target.querySelector('input[type="file"]');
-    const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
 
     try {
-      let res;
-      if (hasFile) {
-        const formData = new FormData();
-        formData.append('access_key', WEB3FORMS_KEY);
-        formData.append('subject', `New sample request from ${state.company || 'unknown'}`);
-        formData.append('from_name', 'SORA Localize LP');
-        formData.append('company', state.company);
-        formData.append('email', state.email);
-        formData.append('sections', sectionsText);
-        formData.append('formats', formatsText);
-        formData.append('materials', state.materials);
-        formData.append('tone', state.tone);
-        formData.append('notes', state.notes);
-        formData.append('attachment', fileInput.files[0]);
-
-        res = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          body: formData,
-        });
-      } else {
-        res = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({
-            access_key: WEB3FORMS_KEY,
-            subject: `New sample request from ${state.company || 'unknown'}`,
-            from_name: 'SORA Localize LP',
-            company: state.company,
-            email: state.email,
-            sections: sectionsText,
-            formats: formatsText,
-            materials: state.materials,
-            tone: state.tone,
-            notes: state.notes,
-          }),
-        });
-      }
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `New sample request from ${state.company || 'unknown'}`,
+          from_name: 'SORA Localize LP',
+          company: state.company,
+          email: state.email,
+          sections: sectionsText,
+          formats: formatsText,
+          materials: state.materials,
+          file_link: state.fileLink,
+          tone: state.tone,
+          notes: state.notes,
+        }),
+      });
 
       const data = await res.json();
       console.log('Web3Forms response:', data);
@@ -735,11 +714,14 @@ function FormSection({ t, lang }) {
             />
           </FormField>
 
-          <FormField label={t(f.fields.attachment.label)} hint={t(f.fields.attachment.hint)}>
+          <FormField label={t(f.fields.fileLink.label)} hint={t(f.fields.fileLink.hint)}>
             <input
-              type="file"
-              name="attachment"
-              className="block w-full text-sm text-slate-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 file:cursor-pointer cursor-pointer"
+              type="url"
+              name="file_link"
+              value={state.fileLink}
+              onChange={(e) => setState({ ...state, fileLink: e.target.value })}
+              placeholder={t(f.fields.fileLink.placeholder)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition"
             />
           </FormField>
 
