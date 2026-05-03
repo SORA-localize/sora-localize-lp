@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { content } from "@/lib/content";
 
-const DEMO_URL = "https://sales-materials-nine.vercel.app/";
+const DEMO_URL = "https://sora-localize-demo.vercel.app/";
 
 export default function Page() {
   const [lang, setLang] = useState('en');
