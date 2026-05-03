@@ -4,7 +4,7 @@ import Image from "next/image";
 import { content } from "@/lib/content";
 
 const DEMO_URL = "https://sora-localize-demo.vercel.app/";
-const MAIL_URL = "mailto:sora.localize@gmail.com?subject=Free%20Japanese%20localization%20sample";
+const WEB3FORMS_KEY = "YOUR_ACCESS_KEY_HERE"; // TODO: replace with real key from web3forms.com
 
 export default function Page() {
   const [lang, setLang] = useState('en');
@@ -16,13 +16,16 @@ export default function Page() {
       <main className="flex-1">
         <Hero t={t} />
         <Why t={t} />
+        <Testimonial t={t} />
         <Services t={t} />
         <Process t={t} />
         <Examples t={t} />
         <DemoCTA t={t} />
         <Pricing t={t} />
+        <After t={t} />
         <Trust t={t} />
-        <FinalCTA t={t} />
+        <FormSection t={t} lang={lang} />
+        <ContactBar t={t} />
       </main>
       <Footer t={t} />
     </div>
@@ -44,7 +47,10 @@ function Header({ lang, setLang, t }) {
           <a href="#pricing" className="hidden md:inline text-sm text-slate-600 hover:text-slate-900 transition">
             {t(content.nav.pricing)}
           </a>
-          <a href="#contact" className="hidden sm:inline text-sm text-slate-600 hover:text-slate-900 transition">
+          <a
+            href="#contact"
+            className="hidden sm:inline-flex items-center px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-full transition"
+          >
             {t(content.nav.contact)}
           </a>
           <div className="flex items-center gap-0.5 bg-slate-100 rounded-full p-1">
@@ -100,7 +106,7 @@ function Hero({ t }) {
         </div>
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
-            href={MAIL_URL}
+            href="#contact"
             className="px-7 py-3.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition shadow-sm hover:shadow"
           >
             {t(content.hero.cta_primary)}
@@ -114,6 +120,7 @@ function Hero({ t }) {
             {t(content.hero.cta_secondary)}
           </a>
         </div>
+        <p className="mt-6 text-xs text-slate-500">{t(content.hero.scarcity)}</p>
       </div>
     </section>
   );
@@ -146,6 +153,55 @@ function Why({ t }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function Testimonial({ t }) {
+  const tt = content.testimonial;
+  return (
+    <section className="px-6 py-16 sm:py-20">
+      <div className="max-w-4xl mx-auto">
+        <div className="rounded-3xl bg-white border border-slate-200 p-8 sm:p-12 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <StarIcon key={i} />
+                ))}
+              </div>
+              <span className="text-sm font-semibold text-slate-900">{t(tt.rating)}</span>
+              <span className="text-slate-300">·</span>
+              <span className="text-sm text-slate-600">{t(tt.jobSuccess)}</span>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-red-600">
+              {t(tt.eyebrow)}
+            </span>
+          </div>
+          <blockquote className="text-base sm:text-lg text-slate-700 leading-relaxed">
+            "{t(tt.quote)}"
+          </blockquote>
+          <div className="mt-6 flex items-center justify-between">
+            <p className="text-sm text-slate-500">{t(tt.attribution)}</p>
+            <a
+              href={tt.profileUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-semibold text-red-600 hover:text-red-700 transition"
+            >
+              {t(tt.profileLabel)}
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function StarIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" aria-hidden>
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
   );
 }
 
@@ -339,16 +395,21 @@ function Pricing({ t }) {
             {t(content.pricing.sub)}
           </p>
         </div>
-        <div className="mt-14 grid md:grid-cols-3 gap-5">
+        <div className="mt-14 grid md:grid-cols-3 gap-5 items-stretch">
           {content.pricing.tiers.map((tier, i) => (
             <div
               key={i}
-              className={`rounded-2xl p-7 transition ${
+              className={`relative rounded-2xl p-7 flex flex-col transition ${
                 tier.highlight
-                  ? 'bg-slate-900 text-white shadow-lg'
+                  ? 'bg-slate-900 text-white shadow-xl ring-2 ring-red-500/40'
                   : 'bg-white border border-slate-200 text-slate-900 hover:border-slate-300'
               }`}
             >
+              {tier.badge && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full whitespace-nowrap shadow-sm">
+                  {t(tier.badge)}
+                </div>
+              )}
               <div
                 className={`text-xs font-bold uppercase tracking-widest mb-3 ${
                   tier.highlight ? 'text-red-400' : 'text-slate-400'
@@ -357,14 +418,23 @@ function Pricing({ t }) {
                 {t(tier.name)}
               </div>
               <div
-                className={`text-3xl font-extrabold tracking-tight mb-4 ${
+                className={`text-3xl font-extrabold tracking-tight mb-1 ${
                   tier.highlight ? 'text-white' : 'text-slate-900'
                 }`}
               >
                 {t(tier.price)}
               </div>
+              {tier.priceNote && (
+                <div
+                  className={`text-xs mb-4 ${
+                    tier.highlight ? 'text-slate-400' : 'text-slate-500'
+                  }`}
+                >
+                  {t(tier.priceNote)}
+                </div>
+              )}
               <p
-                className={`text-sm leading-relaxed ${
+                className={`text-sm leading-relaxed flex-1 ${
                   tier.highlight ? 'text-slate-300' : 'text-slate-600'
                 }`}
               >
@@ -373,7 +443,49 @@ function Pricing({ t }) {
             </div>
           ))}
         </div>
-        <p className="mt-8 text-xs text-slate-500 text-center">{t(content.pricing.note)}</p>
+        <p className="mt-10 text-xs text-slate-500 text-center max-w-3xl mx-auto leading-relaxed">
+          {t(content.pricing.note)}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function After({ t }) {
+  const a = content.after;
+  return (
+    <section className="px-6 py-20 sm:py-28">
+      <div className="max-w-6xl mx-auto">
+        <div className="max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-widest text-red-600 mb-4">
+            {t(a.eyebrow)}
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+            {t(a.title)}
+          </h2>
+          <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed">
+            {t(a.sub)}
+          </p>
+        </div>
+        <ol className="mt-14 relative">
+          <span
+            aria-hidden
+            className="hidden md:block absolute left-[19px] top-2 bottom-2 w-px bg-slate-200"
+          />
+          {a.steps.map((step, i) => (
+            <li key={i} className="relative flex gap-5 sm:gap-7 pb-10 last:pb-0">
+              <div className="flex-shrink-0 flex items-start">
+                <div className="w-10 h-10 rounded-full bg-slate-900 text-white text-sm font-bold flex items-center justify-center shadow-sm">
+                  {String(i + 1).padStart(2, '0')}
+                </div>
+              </div>
+              <div className="pt-1.5 flex-1">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{t(step.title)}</h3>
+                <p className="text-slate-600 leading-relaxed">{t(step.body)}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );
@@ -381,7 +493,7 @@ function Pricing({ t }) {
 
 function Trust({ t }) {
   return (
-    <section className="px-6 py-20 sm:py-28">
+    <section className="px-6 py-20 sm:py-24 bg-slate-50 border-y border-slate-200/60">
       <div className="max-w-6xl mx-auto grid md:grid-cols-12 gap-10 md:gap-16 items-start">
         <div className="md:col-span-5">
           <p className="text-xs font-semibold uppercase tracking-widest text-red-600 mb-4">
@@ -423,72 +535,292 @@ function CheckIcon() {
   );
 }
 
-function FinalCTA({ t }) {
+function FormSection({ t, lang }) {
+  const f = content.form;
+  const [state, setState] = useState({
+    company: '',
+    email: '',
+    sections: [],
+    formats: [],
+    materials: '',
+    tone: '',
+    notes: '',
+  });
+  const [status, setStatus] = useState('idle'); // idle | submitting | success | error
+
+  const toggleMulti = (key, value) => {
+    setState((s) => {
+      const arr = s[key];
+      if (arr.includes(value)) return { ...s, [key]: arr.filter((v) => v !== value) };
+      if (arr.length >= 4) return s; // hard cap at 4
+      return { ...s, [key]: [...arr, value] };
+    });
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('submitting');
+    try {
+      const formData = new FormData(e.target);
+      formData.append('access_key', WEB3FORMS_KEY);
+      formData.append('subject', `New sample request from ${state.company || 'unknown'}`);
+      formData.append('from_name', 'SORA Localize LP');
+      formData.append('sections', state.sections.map((i) => f.fields.sections.options[i].en).join(', '));
+      formData.append('formats', state.formats.map((i) => f.fields.formats.options[i].en).join(', '));
+
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  if (status === 'success') {
+    return (
+      <section id="contact" className="px-6 py-24 sm:py-32 bg-slate-900 relative overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(239,68,68,0.22), transparent 70%)',
+          }}
+        />
+        <div className="relative max-w-2xl mx-auto text-center">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-600 flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            {t(f.success.title)}
+          </h2>
+          <p className="mt-5 text-base sm:text-lg text-slate-300 leading-relaxed">
+            {t(f.success.body)}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section id="contact" className="relative px-6 py-24 sm:py-32 bg-slate-900 overflow-hidden">
+    <section id="contact" className="px-6 py-20 sm:py-28 bg-slate-900 relative overflow-hidden">
       <div
         aria-hidden
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(239,68,68,0.22), transparent 70%)',
+            'radial-gradient(ellipse 70% 40% at 50% 0%, rgba(239,68,68,0.18), transparent 70%)',
         }}
       />
-      <div className="relative max-w-4xl mx-auto text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-red-400 mb-5">
-          {t(content.finalCta.eyebrow)}
-        </p>
-        <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">
-          {t(content.finalCta.title)}
-        </h2>
-        <p className="mt-6 text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
-          {t(content.finalCta.sub)}
-        </p>
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a
-            href={MAIL_URL}
-            className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition shadow-lg"
-          >
-            {t(content.finalCta.cta_primary)}
-          </a>
-          <a
-            href={DEMO_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-full border border-white/20 transition backdrop-blur"
-          >
-            {t(content.finalCta.cta_secondary)}
-          </a>
+      <div className="relative max-w-3xl mx-auto">
+        <div className="text-center mb-12">
+          <p className="text-xs font-semibold uppercase tracking-widest text-red-400 mb-4">
+            {t(f.eyebrow)}
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            {t(f.title)}
+          </h2>
+          <p className="mt-5 text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl mx-auto">
+            {t(f.sub)}
+          </p>
         </div>
 
-        <div className="mt-16 pt-12 border-t border-white/10">
-          <p className="text-base text-slate-300 mb-8">{t(content.contact.sub)}</p>
-          <div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <a
-              href="mailto:sora.localize@gmail.com"
-              className="block rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 p-5 transition text-left"
+        <form
+          onSubmit={onSubmit}
+          className="bg-white rounded-3xl p-7 sm:p-10 shadow-2xl space-y-7"
+        >
+          <FormField label={t(f.fields.company.label)} required>
+            <input
+              type="text"
+              name="company"
+              required
+              value={state.company}
+              onChange={(e) => setState({ ...state, company: e.target.value })}
+              placeholder={t(f.fields.company.placeholder)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition"
+            />
+          </FormField>
+
+          <FormField label={t(f.fields.email.label)} required>
+            <input
+              type="email"
+              name="email"
+              required
+              value={state.email}
+              onChange={(e) => setState({ ...state, email: e.target.value })}
+              placeholder={t(f.fields.email.placeholder)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition"
+            />
+          </FormField>
+
+          <MultiSelectField
+            label={t(f.fields.sections.label)}
+            hint={t(f.fields.sections.hint)}
+            options={f.fields.sections.options}
+            selected={state.sections}
+            onToggle={(idx) => toggleMulti('sections', idx)}
+            t={t}
+            limitMessage={t(f.limit)}
+          />
+
+          <MultiSelectField
+            label={t(f.fields.formats.label)}
+            hint={t(f.fields.formats.hint)}
+            options={f.fields.formats.options}
+            selected={state.formats}
+            onToggle={(idx) => toggleMulti('formats', idx)}
+            t={t}
+            limitMessage={t(f.limit)}
+          />
+
+          <FormField label={t(f.fields.materials.label)} hint={t(f.fields.materials.hint)}>
+            <textarea
+              name="materials"
+              rows={4}
+              value={state.materials}
+              onChange={(e) => setState({ ...state, materials: e.target.value })}
+              placeholder={t(f.fields.materials.placeholder)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition resize-none"
+            />
+          </FormField>
+
+          <FormField label={t(f.fields.attachment.label)} hint={t(f.fields.attachment.hint)}>
+            <input
+              type="file"
+              name="attachment"
+              className="block w-full text-sm text-slate-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 file:cursor-pointer cursor-pointer"
+            />
+          </FormField>
+
+          <FormField label={t(f.fields.tone.label)}>
+            <select
+              name="tone"
+              value={state.tone}
+              onChange={(e) => setState({ ...state, tone: e.target.value })}
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition"
             >
-              <div className="text-[10px] font-bold uppercase tracking-widest text-red-300 mb-1">
-                {t(content.contact.email_label)}
-              </div>
-              <div className="text-sm font-semibold text-white">sora.localize@gmail.com</div>
-            </a>
-            <a
-              href="tel:+817044600019"
-              className="block rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 p-5 transition text-left"
+              <option value="">—</option>
+              {f.fields.tone.options.map((o, i) => (
+                <option key={i} value={t(o)}>
+                  {t(o)}
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          <FormField label={t(f.fields.notes.label)}>
+            <textarea
+              name="notes"
+              rows={3}
+              value={state.notes}
+              onChange={(e) => setState({ ...state, notes: e.target.value })}
+              placeholder={t(f.fields.notes.placeholder)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500 transition resize-none"
+            />
+          </FormField>
+
+          {status === 'error' && (
+            <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+              {t(f.error)}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={status === 'submitting'}
+            className="w-full px-7 py-4 bg-red-600 hover:bg-red-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-semibold rounded-full transition shadow-sm"
+          >
+            {status === 'submitting' ? t(f.submitting) : t(f.submit)}
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function FormField({ label, hint, required, children }) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-slate-900 mb-2">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      {hint && <p className="text-xs text-slate-500 mb-2">{hint}</p>}
+      {children}
+    </div>
+  );
+}
+
+function MultiSelectField({ label, hint, options, selected, onToggle, t, limitMessage }) {
+  const atLimit = selected.length >= 4;
+  return (
+    <div>
+      <div className="flex items-baseline justify-between mb-2">
+        <label className="block text-sm font-semibold text-slate-900">{label}</label>
+        <span className="text-xs text-slate-500">{hint}</span>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-2">
+        {options.map((opt, i) => {
+          const isChecked = selected.includes(i);
+          const disabled = !isChecked && atLimit;
+          return (
+            <label
+              key={i}
+              className={`flex items-start gap-2.5 px-3.5 py-3 border rounded-xl text-sm transition cursor-pointer ${
+                isChecked
+                  ? 'bg-red-50 border-red-300 text-slate-900'
+                  : disabled
+                  ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
+                  : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'
+              }`}
             >
-              <div className="text-[10px] font-bold uppercase tracking-widest text-red-300 mb-1">
-                {t(content.contact.phone_label)}
-              </div>
-              <div className="text-sm font-semibold text-white">+81 70-4460-0019</div>
-            </a>
-          </div>
-          <div className="mt-8 flex items-center justify-center gap-4">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-              {t(content.contact.follow_label)}
-            </span>
-            <SocialLinks dark />
-          </div>
+              <input
+                type="checkbox"
+                checked={isChecked}
+                disabled={disabled}
+                onChange={() => onToggle(i)}
+                className="mt-0.5 accent-red-600"
+              />
+              <span className="leading-snug">{t(opt)}</span>
+            </label>
+          );
+        })}
+      </div>
+      {atLimit && <p className="mt-2 text-xs text-red-600">{limitMessage}</p>}
+    </div>
+  );
+}
+
+function ContactBar({ t }) {
+  return (
+    <section className="px-6 py-12 bg-slate-900 border-t border-white/10">
+      <div className="max-w-4xl mx-auto">
+        <p className="text-center text-sm text-slate-400 mb-6">{t(content.contact.title)}</p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+          <a
+            href="mailto:sora.localize@gmail.com"
+            className="text-sm font-semibold text-white hover:text-red-300 transition"
+          >
+            sora.localize@gmail.com
+          </a>
+          <span className="hidden sm:inline text-slate-600">·</span>
+          <a
+            href="tel:+817044600019"
+            className="text-sm font-semibold text-white hover:text-red-300 transition"
+          >
+            +81 70-4460-0019
+          </a>
+          <span className="hidden sm:inline text-slate-600">·</span>
+          <SocialLinks dark />
         </div>
       </div>
     </section>
