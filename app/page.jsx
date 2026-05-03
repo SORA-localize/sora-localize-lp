@@ -4,7 +4,7 @@ import Image from "next/image";
 import { content } from "@/lib/content";
 
 const DEMO_URL = "https://sora-localize-demo.vercel.app/";
-const WEB3FORMS_KEY = "YOUR_ACCESS_KEY_HERE"; // TODO: replace with real key from web3forms.com
+const WEB3FORMS_KEY = "ff48b850-a932-4c2d-8e67-9475c8d35284";
 
 export default function Page() {
   const [lang, setLang] = useState('en');
